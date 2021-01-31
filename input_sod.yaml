@@ -1,0 +1,66 @@
+# Distributed under the MIT License.
+# See LICENSE.txt for details.
+
+# Executable: EvolveNewtonianEulerRiemannProblem1D
+# Check: parse;execute
+
+Evolution:
+  InitialTime: 0.0
+  InitialTimeStep: 0.001
+  TimeStepper:
+    RungeKutta3
+
+DomainCreator:
+  Interval:
+    LowerBound: [-0.5]
+    UpperBound: [0.5]
+    IsPeriodicIn: [false]
+    InitialRefinement: [6]
+    InitialGridPoints: [3]
+    TimeDependence: None
+
+SpatialDiscretization:
+  DiscontinuousGalerkin:
+    Formulation: StrongInertial
+    Quadrature: GaussLobatto
+
+AnalyticSolution:
+  RiemannProblem:
+    AdiabaticIndex: 1.4
+    InitialPosition: 0.0
+    LeftMassDensity: 1.0
+    LeftVelocity: [0.0]
+    LeftPressure: 1.0
+    RightMassDensity: 0.125
+    RightVelocity: [0.0]
+    RightPressure: 0.1
+    PressureStarTol: 1e-9
+
+NumericalFlux:
+  Hll:
+
+Limiter:
+  Minmod:
+    Type: LambdaPiN
+    # The optimal value of the TVB constant is problem-dependent.
+    # This test uses 0 to favor robustness over accuracy.
+    TvbConstant: 0.0
+    DisableForDebugging: false
+
+EventsAndTriggers:
+  ? Slabs:
+      EvenlySpaced:
+        Interval: 5
+        Offset: 0
+  : - ObserveFields:
+        SubfileName: "hll_minmod_sod"
+        VariablesToObserve: [MassDensity, Pressure, Velocity]
+        InterpolateToMesh: None
+  ? Slabs:
+      Specified:
+        Values: [250]
+  : - Completion
+
+Observers:
+  VolumeFileName: "Riemann1D_Sod"
+  ReductionFileName: "NewtonianEulerRiemannProblem1DReductions"

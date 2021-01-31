@@ -4,6 +4,12 @@
 
 ## How to build executables
 
+In the SpECTRE build directory, run
+```
+make EvolveNewtonianEulerRiemannProblem1D
+```
+to build an executable.
+
 
 ### Newtonian
 
